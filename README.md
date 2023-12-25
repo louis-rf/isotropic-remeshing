@@ -14,5 +14,8 @@ I based the mesh_utils package off the method shown [here](https://github.com/py
 c++.
 ```
 git clone --recursive https://github.com/pybind/cmake_example.git
+# move the required files, i.e. all the files which aren't already there.
+for item in cmake_example/*; do [ ! -e "mesh_utils/$(basename "$item")" ] && mv "$item" "mesh_utils/"; done
+rm -rf cmake_example
 ```
 
