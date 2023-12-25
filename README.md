@@ -19,3 +19,8 @@ for item in cmake_example/*; do [ ! -e "mesh_utils/$(basename "$item")" ] && mv 
 rm -rf cmake_example
 ```
 
+Now build the binding:
+```
+cd mesh_utils
+pip install .
+```

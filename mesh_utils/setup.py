@@ -116,8 +116,8 @@ class CMakeBuild(build_ext):
             build_temp.mkdir(parents=True)
 
         # Example of additional CMake arguments for GEOgram
-        geogram_include_dir = "../../geogram/src/lib"
-        geogram_library_dir = "../../geogram/build/Darwin-clang-dynamic-Release/lib"
+        geogram_include_dir = "../geogram/src/lib"
+        geogram_library_dir = "../geogram/build/Darwin-clang-dynamic-Release/lib"
         geogram_library = "libgeogram.dylib"
 
         cmake_args += [
