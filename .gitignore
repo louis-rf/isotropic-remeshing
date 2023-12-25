@@ -8,3 +8,5 @@ mesh_utils/pybind11
 mesh_utils/tests/test_basic.py
 mesh_utils/build
 mesh_utils/mesh_utils.egg-info
+
+data
