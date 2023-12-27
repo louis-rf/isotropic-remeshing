@@ -5,6 +5,8 @@
 #include "geogram/mesh/mesh_remesh.h"
 #include <geogram/basic/logger.h>
 #include <geogram/basic/command_line.h>
+#include <geogram/basic/command_line_args.h>
+#include <geogram/points/co3ne.h>
 #include <iostream>
 #include <string> // Include for std::string
 #include <vector>
@@ -112,6 +114,19 @@ py::dict mesh2dict(GEO::Mesh& mesh) {
     return result;
 }
 
+void begin(GEO::Mesh& mesh) {
+    mesh.vertices.set_double_precision();            
+}
+
+void smooth_point_set(
+    GEO::Mesh& mesh, GEO::index_t nb_iterations=2, GEO::index_t nb_neighbors=30
+) {
+    begin(mesh);
+    if(nb_iterations != 0) {
+        GEO::Co3Ne_smooth(mesh, nb_neighbors, nb_iterations);
+    }
+}
+
 
 py::dict load(const std::string& file_path) {
     // GEO::Mesh _mesh = mesh_loader(file_path);
@@ -171,6 +186,12 @@ py::dict py2mesh(const py::dict& mesh_data) {
             mesh.facets.create_polygon(facet_vertices.size(), facet_vertices.data());
         }
     }
+
+    // Smooth point set
+    GEO::CmdLine::import_arg_group("algo");
+    GEO::CmdLine::import_arg_group("co3ne");
+    smooth_point_set(mesh);
+
     // Verify data by retrieving vertices, edges, and facets
     py::array_t<double> new_vertices = get_vertices(mesh.vertices);
     py::array_t<GEO::index_t> new_edges = get_edges(mesh.edges);
