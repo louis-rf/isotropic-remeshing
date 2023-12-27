@@ -10,3 +10,4 @@ mesh_utils/build
 mesh_utils/mesh_utils.egg-info
 
 data
+.vscode/settings.json
