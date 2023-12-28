@@ -3,6 +3,9 @@
 #include "geogram/mesh/mesh_io.h"
 #include "geogram/mesh/mesh.h"
 #include "geogram/mesh/mesh_remesh.h"
+#include "geogram/mesh/mesh_repair.h"
+#include "geogram/mesh/mesh_preprocessing.h"
+#include "geogram/mesh/mesh_geometry.h"
 #include <geogram/basic/logger.h>
 #include <geogram/basic/command_line.h>
 #include <geogram/basic/command_line_args.h>
@@ -128,6 +131,25 @@ void _smooth_point_set(
 }
 
 
+void _reconstruct_Co3Ne(
+    GEO::Mesh& mesh,
+    double radius=5.0,
+    GEO::index_t nb_iterations=0,
+    GEO::index_t nb_neighbors=30,
+    GEO::MeshRepairMode mesh_repair_colocate=GEO::MESH_REPAIR_DEFAULT
+) {
+    begin(mesh);
+    double R = GEO::bbox_diagonal(mesh);
+    GEO::mesh_repair(mesh, mesh_repair_colocate, 1e-6*R);
+    radius *= 0.01 * R;
+    if(nb_iterations != 0) {
+        GEO::Co3Ne_smooth(mesh, nb_neighbors, nb_iterations);
+    }
+    GEO::Co3Ne_reconstruct(mesh, radius);
+    GEO::orient_normals(mesh);
+}
+
+
 py::dict load(const std::string& file_path) {
     // GEO::Mesh _mesh = mesh_loader(file_path);
     // Initialize the GEOgram library
@@ -206,6 +228,15 @@ py::dict smooth_point_set(const py::dict& mesh_data) {
     return mesh2dict(*mesh);
 }
 
+py::dict reconstruct_Co3Ne(const py::dict& mesh_data) {
+    auto* mesh = py2mesh(mesh_data);
+
+    // Add faces in
+    _reconstruct_Co3Ne(*mesh);
+
+    return mesh2dict(*mesh);
+}
+
 PYBIND11_MODULE(mesh_utils, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
@@ -228,6 +259,10 @@ PYBIND11_MODULE(mesh_utils, m) {
 
     m.def("smooth_point_set", &smooth_point_set, R"pbdoc(
         Smooth the points.
+    )pbdoc");
+
+    m.def("reconstruct_Co3Ne", &reconstruct_Co3Ne, R"pbdoc(
+        Add the faces.
     )pbdoc");
 
     m.def("test", &test, R"pbdoc(
