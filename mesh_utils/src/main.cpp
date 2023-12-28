@@ -150,6 +150,61 @@ void _reconstruct_Co3Ne(
 }
 
 
+void _remesh_smooth(
+    GEO::Mesh& mesh,
+    GEO::index_t nb_points = 30000,
+    double tri_shape_adapt = 1.0,
+    double tri_size_adapt = 0.0,
+    GEO::index_t normal_iter = 3,
+    GEO::index_t Lloyd_iter = 5,
+    GEO::index_t Newton_iter = 30,
+    GEO::index_t Newton_m = 7,
+    GEO::index_t LFS_samples = 10000
+) {
+    if (mesh.facets.nb() == 0) {
+        GEO::Logger::err("Remesh") << "mesh has no facet" << std::endl;
+        return;
+    }
+
+    if (!mesh.facets.are_simplices()) {
+        GEO::Logger::err("Remesh") << "mesh need to be simplicial, use repair" << std::endl;
+        return;
+    }
+
+    begin(mesh);
+    GEO::Mesh remesh;
+
+    if (tri_shape_adapt != 0.0) {
+        tri_shape_adapt *= 0.02;
+        compute_normals(mesh);
+        if (normal_iter != 0) {
+            GEO::Logger::out("Nsmooth") << "Smoothing normals, " << normal_iter << " iteration(s)" << std::endl;
+            simple_Laplacian_smooth(mesh, normal_iter, true);
+        }
+        set_anisotropy(mesh, tri_shape_adapt);
+    } else {
+        mesh.vertices.set_dimension(3);
+    }
+
+    if (tri_size_adapt != 0.0) {
+        compute_sizing_field(mesh, tri_size_adapt, LFS_samples);
+    } else {
+        GEO::AttributesManager& attributes = mesh.vertices.attributes();
+        if (attributes.is_defined("weight")) {
+            attributes.delete_attribute_store("weight");
+        }
+    }
+
+    GEO::remesh_smooth(mesh, remesh, nb_points, 0, Lloyd_iter, Newton_iter, Newton_m);
+
+    GEO::MeshElementsFlags what = GEO::MeshElementsFlags(GEO::MESH_VERTICES | GEO::MESH_EDGES | GEO::MESH_FACETS | GEO::MESH_CELLS);
+    mesh.clear();
+    mesh.copy(remesh, true, what);
+
+    GEO::orient_normals(mesh);
+}
+
+
 py::dict load(const std::string& file_path) {
     // GEO::Mesh _mesh = mesh_loader(file_path);
     // Initialize the GEOgram library
@@ -237,6 +292,15 @@ py::dict reconstruct_Co3Ne(const py::dict& mesh_data) {
     return mesh2dict(*mesh);
 }
 
+py::dict remesh_smooth(const py::dict& mesh_data) {
+    auto* mesh = py2mesh(mesh_data);
+
+    // Remesh
+    _remesh_smooth(*mesh);
+
+    return mesh2dict(*mesh);
+}
+
 PYBIND11_MODULE(mesh_utils, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
@@ -262,6 +326,10 @@ PYBIND11_MODULE(mesh_utils, m) {
     )pbdoc");
 
     m.def("reconstruct_Co3Ne", &reconstruct_Co3Ne, R"pbdoc(
+        Add the faces.
+    )pbdoc");
+
+    m.def("remesh_smooth", &remesh_smooth, R"pbdoc(
         Add the faces.
     )pbdoc");
 
