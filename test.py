@@ -1,9 +1,29 @@
 import mesh_utils
 
 v = mesh_utils.load("data/bunny.ply")
-vv = mesh_utils.smooth_point_set(v)
-vvv = mesh_utils.reconstruct_Co3Ne(vv)
-vvvv = mesh_utils.remesh_smooth(vvv)
+vv = mesh_utils.smooth_point_set(
+    v,     # mesh_data
+    2,     # nb_iterations
+    30     # nb_neighbors
+)
+vvv = mesh_utils.reconstruct_Co3Ne(
+    vv,
+    5.0,   # radius
+    0,     # nb_iterations
+    30,    # nb_neighbors
+    1      # mesh_repair_colocate # MESH_REPAIR_DEFAULT
+)
+vvvv = mesh_utils.remesh_smooth(
+    vvv,   # mesh_data
+    1000,  # nb_points
+    1.0,   # tri_shape_adapt
+    0.0,   # tri_size_adapt
+    3,     # normal_iter
+    5,     # Lloyd_iter
+    30,    # Newton_iter
+    7,     # Newton_m
+    10000  # LFS_samples
+)
 
 import matplotlib.pyplot as plt
 

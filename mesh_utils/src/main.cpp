@@ -252,31 +252,73 @@ py::dict test(const py::dict& mesh_data) {
     return mesh2dict(*mesh);
 }
 
-py::dict smooth_point_set(const py::dict& mesh_data) {
+py::dict smooth_point_set(
+    const py::dict& mesh_data,
+    int nb_iterations = 2,
+    int nb_neighbors = 30
+) {
     auto* mesh = py2mesh(mesh_data);
 
-    // Smooth point set
+    // Import necessary argument groups
     GEO::CmdLine::import_arg_group("algo");
     GEO::CmdLine::import_arg_group("co3ne");
-    _smooth_point_set(*mesh);
+
+    // Smooth point set with additional arguments
+    _smooth_point_set(
+        *mesh, 
+        static_cast<GEO::index_t>(nb_iterations),
+        static_cast<GEO::index_t>(nb_neighbors)
+    );
 
     return mesh2dict(*mesh);
 }
 
-py::dict reconstruct_Co3Ne(const py::dict& mesh_data) {
+py::dict reconstruct_Co3Ne(
+    const py::dict& mesh_data,
+    float radius = 5.0,
+    int nb_iterations = 0,
+    int nb_neighbors = 30,
+    int mesh_repair_colocate = static_cast<int>(GEO::MESH_REPAIR_DEFAULT)
+) {
     auto* mesh = py2mesh(mesh_data);
 
-    // Add faces in
-    _reconstruct_Co3Ne(*mesh);
+    // Reconstruct using additional arguments
+    _reconstruct_Co3Ne(
+        *mesh, 
+        static_cast<double>(radius),
+        static_cast<GEO::index_t>(nb_iterations),
+        static_cast<GEO::index_t>(nb_neighbors),
+        static_cast<GEO::MeshRepairMode>(mesh_repair_colocate)
+    );
 
     return mesh2dict(*mesh);
 }
 
-py::dict remesh_smooth(const py::dict& mesh_data) {
+py::dict remesh_smooth(
+    const py::dict& mesh_data,
+    int nb_points = 30000,
+    float tri_shape_adapt = 1.0,
+    float tri_size_adapt = 0.0,
+    int normal_iter = 3,
+    int Lloyd_iter = 5,
+    int Newton_iter = 30,
+    int Newton_m = 7,
+    int LFS_samples = 10000
+) {
     auto* mesh = py2mesh(mesh_data);
 
-    // Remesh
-    _remesh_smooth(*mesh);
+    // Remesh with additional arguments
+    _remesh_smooth(
+        *mesh, 
+        static_cast<GEO::index_t>(nb_points),
+        static_cast<double>(tri_shape_adapt),
+        static_cast<double>(tri_size_adapt),
+        static_cast<GEO::index_t>(normal_iter),
+        static_cast<GEO::index_t>(Lloyd_iter),
+        static_cast<GEO::index_t>(Newton_iter),
+        static_cast<GEO::index_t>(Newton_m),
+        static_cast<GEO::index_t>(LFS_samples)
+    );
 
     return mesh2dict(*mesh);
 }
