@@ -1,19 +1,19 @@
-import mesh_utils
+import pygeogram
 
-v = mesh_utils.load("data/bunny.ply")
-vv = mesh_utils.smooth_point_set(
+v = pygeogram.load("data/bunny.ply")
+vv = pygeogram.smooth_point_set(
     v,     # mesh_data
     2,     # nb_iterations
     30     # nb_neighbors
 )
-vvv = mesh_utils.reconstruct_Co3Ne(
+vvv = pygeogram.reconstruct_Co3Ne(
     vv,
     5.0,   # radius
     0,     # nb_iterations
     30,    # nb_neighbors
     1      # mesh_repair_colocate # MESH_REPAIR_DEFAULT
 )
-vvvv = mesh_utils.remesh_smooth(
+vvvv = pygeogram.remesh_smooth(
     vvv,   # mesh_data
     1000,  # nb_points
     1.0,   # tri_shape_adapt

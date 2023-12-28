@@ -133,13 +133,13 @@ class CMakeBuild(build_ext):
         )
 
 setup(
-    name="mesh_utils",
+    name="pygeogram",
     version="0.0.1",
     author="Louis Robinson",
     author_email="louis97rf@gmail.com",
     description="A binding of geogram to python",
     long_description="",
-    ext_modules=[CMakeExtension("mesh_utils")],
+    ext_modules=[CMakeExtension("pygeogram")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},

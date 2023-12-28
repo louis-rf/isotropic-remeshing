@@ -323,12 +323,12 @@ py::dict remesh_smooth(
     return mesh2dict(*mesh);
 }
 
-PYBIND11_MODULE(mesh_utils, m) {
+PYBIND11_MODULE(pygeogram, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
         -----------------------
 
-        .. currentmodule:: mesh_utils
+        .. currentmodule:: pygeogram
 
         .. autosummary::
            :toctree: _generate

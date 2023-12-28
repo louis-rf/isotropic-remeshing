@@ -10,17 +10,17 @@ cd Build/Darwin-clang-dynamic-Release
 make -j 8
 ```
 
-I based the mesh_utils package off the method shown [here](https://github.com/pybind/cmake_example) to make python bindings for
+I based the pygeogram package off the method shown [here](https://github.com/pybind/cmake_example) to make python bindings for
 c++.
 ```
 git clone --recursive https://github.com/pybind/cmake_example.git
 # move the required files, i.e. all the files which aren't already there.
-for item in cmake_example/*; do [ ! -e "mesh_utils/$(basename "$item")" ] && mv "$item" "mesh_utils/"; done
+for item in cmake_example/*; do [ ! -e "pygeogram/$(basename "$item")" ] && mv "$item" "pygeogram/"; done
 rm -rf cmake_example
 ```
 
 Now build the binding:
 ```
-cd mesh_utils
+cd pygeogram
 pip install .
 ```

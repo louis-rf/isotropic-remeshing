@@ -1,13 +1,13 @@
-mesh_utils/LICENSE
-mesh_utils/MANIFEST.in
-mesh_utils/pyproject.toml
-mesh_utils/README.md
-mesh_utils/conda.recipe
-mesh_utils/docs
-mesh_utils/pybind11
-mesh_utils/tests/test_basic.py
-mesh_utils/build
-mesh_utils/mesh_utils.egg-info
+pygeogram/LICENSE
+pygeogram/MANIFEST.in
+pygeogram/pyproject.toml
+pygeogram/README.md
+pygeogram/conda.recipe
+pygeogram/docs
+pygeogram/pybind11
+pygeogram/tests/test_basic.py
+pygeogram/build
+pygeogram/pygeogram.egg-info
 
 data
 .vscode/settings.json
