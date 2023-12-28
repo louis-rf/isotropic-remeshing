@@ -86,23 +86,6 @@ py::array_t<unsigned int> get_facets(const GEO::MeshFacets& facets) {
     return result;
 }
 
-// GEO::Mesh mesh_loader(const std::string& file_path) {
-//     // Initialize the GEOgram library
-//     GEO::initialize();
-
-//     // Setting up a default logger
-//     GEO::Logger::instance()->set_quiet(false);
-
-//     GEO::Mesh mesh;
-//     mesh.clear(false, false);
-//     GEO::MeshIOFlags flags;
-//     GEO::mesh_load(file_path, mesh, flags);
-//     std::cout << "Mesh loaded successfully!" << std::endl;
-
-//     return mesh;
-// }
-
-
 py::dict mesh2dict(GEO::Mesh& mesh) {
     py::array_t<double> vertices_array = get_vertices(mesh.vertices);
     py::array_t<GEO::index_t> edges_array = get_edges(mesh.edges);
@@ -130,7 +113,6 @@ void _smooth_point_set(
     }
 }
 
-
 void _reconstruct_Co3Ne(
     GEO::Mesh& mesh,
     double radius=5.0,
@@ -148,7 +130,6 @@ void _reconstruct_Co3Ne(
     GEO::Co3Ne_reconstruct(mesh, radius);
     GEO::orient_normals(mesh);
 }
-
 
 void _remesh_smooth(
     GEO::Mesh& mesh,
@@ -203,7 +184,6 @@ void _remesh_smooth(
 
     GEO::orient_normals(mesh);
 }
-
 
 py::dict load(const std::string& file_path) {
     // GEO::Mesh _mesh = mesh_loader(file_path);
@@ -330,7 +310,7 @@ PYBIND11_MODULE(mesh_utils, m) {
     )pbdoc");
 
     m.def("remesh_smooth", &remesh_smooth, R"pbdoc(
-        Add the faces.
+        Recompute the faces.
     )pbdoc");
 
     m.def("test", &test, R"pbdoc(
