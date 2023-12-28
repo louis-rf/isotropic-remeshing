@@ -118,7 +118,7 @@ void begin(GEO::Mesh& mesh) {
     mesh.vertices.set_double_precision();            
 }
 
-void smooth_point_set(
+void _smooth_point_set(
     GEO::Mesh& mesh, GEO::index_t nb_iterations=2, GEO::index_t nb_neighbors=30
 ) {
     begin(mesh);
@@ -145,11 +145,12 @@ py::dict load(const std::string& file_path) {
     return mesh2dict(mesh);
 }
 
-py::dict py2mesh(const py::dict& mesh_data) {
-    GEO::Mesh mesh;
-    mesh.vertices.clear();
-    mesh.edges.clear();
-    mesh.facets.clear();  // Clear existing facets
+GEO::Mesh* py2mesh(const py::dict& mesh_data) {
+    // GEO::Mesh mesh;
+    auto* mesh = new GEO::Mesh();
+    mesh->vertices.clear();
+    mesh->edges.clear();
+    mesh->facets.clear();  // Clear existing facets
 
     // Assuming mesh_data contains numpy arrays for vertices, edges, and facets
     py::array_t<double> vertices_array = mesh_data["vertices"].cast<py::array_t<double>>();
@@ -159,13 +160,13 @@ py::dict py2mesh(const py::dict& mesh_data) {
     // Populate vertices
     auto v_buf = vertices_array.unchecked<2>();
     for (ssize_t i = 0; i < v_buf.shape(0); ++i) {
-        mesh.vertices.create_vertex(&v_buf(i, 0));
+        mesh->vertices.create_vertex(&v_buf(i, 0));
     }
 
     // Populate edges
     auto e_buf = edges_array.unchecked<2>();
     for (ssize_t i = 0; i < e_buf.shape(0); ++i) {
-        mesh.edges.create_edge(e_buf(i, 0), e_buf(i, 1));
+        mesh->edges.create_edge(e_buf(i, 0), e_buf(i, 1));
     }
 
     // Populate facets
@@ -179,35 +180,31 @@ py::dict py2mesh(const py::dict& mesh_data) {
 
         // Create the facet based on the number of vertices
         if (num_vertices == 3) {
-            mesh.facets.create_triangle(facet_vertices[0], facet_vertices[1], facet_vertices[2]);
+            mesh->facets.create_triangle(facet_vertices[0], facet_vertices[1], facet_vertices[2]);
         } else if (num_vertices == 4) {
-            mesh.facets.create_quad(facet_vertices[0], facet_vertices[1], facet_vertices[2], facet_vertices[3]);
+            mesh->facets.create_quad(facet_vertices[0], facet_vertices[1], facet_vertices[2], facet_vertices[3]);
         } else {
-            mesh.facets.create_polygon(facet_vertices.size(), facet_vertices.data());
+            mesh->facets.create_polygon(facet_vertices.size(), facet_vertices.data());
         }
     }
+    return mesh;
+}
+
+py::dict test(const py::dict& mesh_data) {
+    auto* mesh = py2mesh(mesh_data);
+    return mesh2dict(*mesh);
+}
+
+py::dict smooth_point_set(const py::dict& mesh_data) {
+    auto* mesh = py2mesh(mesh_data);
 
     // Smooth point set
     GEO::CmdLine::import_arg_group("algo");
     GEO::CmdLine::import_arg_group("co3ne");
-    smooth_point_set(mesh);
+    _smooth_point_set(*mesh);
 
-    // Verify data by retrieving vertices, edges, and facets
-    py::array_t<double> new_vertices = get_vertices(mesh.vertices);
-    py::array_t<GEO::index_t> new_edges = get_edges(mesh.edges);
-    py::array_t<GEO::index_t> new_facets = get_facets(mesh.facets);  // Assuming get_facets is implemented similarly
-
-    // Optional: Print or otherwise validate new_vertices, new_edges, and new_facets
-
-    // Create a dictionary to return the arrays
-    py::dict result;
-    result["vertices"] = new_vertices;
-    result["edges"] = new_edges;
-    result["facets"] = new_facets;
-
-    return result;
+    return mesh2dict(*mesh);
 }
-
 
 PYBIND11_MODULE(mesh_utils, m) {
     m.doc() = R"pbdoc(
@@ -229,7 +226,11 @@ PYBIND11_MODULE(mesh_utils, m) {
         Load a mesh file.
     )pbdoc");
 
-    m.def("py2mesh", &py2mesh, R"pbdoc(
+    m.def("smooth_point_set", &smooth_point_set, R"pbdoc(
+        Smooth the points.
+    )pbdoc");
+
+    m.def("test", &test, R"pbdoc(
         Convert a mesh in python to a mesh in C++.
     )pbdoc");
 
