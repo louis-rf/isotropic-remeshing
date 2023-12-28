@@ -186,13 +186,6 @@ void _remesh_smooth(
 }
 
 py::dict load(const std::string& file_path) {
-    // GEO::Mesh _mesh = mesh_loader(file_path);
-    // Initialize the GEOgram library
-    GEO::initialize();
-
-    // Setting up a default logger
-    GEO::Logger::instance()->set_quiet(false);
-
     GEO::Mesh mesh;
     mesh.clear(false, false);
     GEO::MeshIOFlags flags;
@@ -259,10 +252,6 @@ py::dict smooth_point_set(
 ) {
     auto* mesh = py2mesh(mesh_data);
 
-    // Import necessary argument groups
-    GEO::CmdLine::import_arg_group("algo");
-    GEO::CmdLine::import_arg_group("co3ne");
-
     // Smooth point set with additional arguments
     _smooth_point_set(
         *mesh, 
@@ -324,6 +313,15 @@ py::dict remesh_smooth(
 }
 
 PYBIND11_MODULE(pygeogram, m) {
+    // Initialize the GEOgram library
+    GEO::initialize();
+    // Setting up a default logger
+    GEO::Logger::instance()->set_quiet(false);
+
+    // Import necessary argument groups (needed for smooth_point_set and some others)
+    GEO::CmdLine::import_arg_group("algo");
+    GEO::CmdLine::import_arg_group("co3ne");
+
     m.doc() = R"pbdoc(
         Pybind11 example plugin
         -----------------------
