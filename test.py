@@ -1,20 +1,22 @@
+import matplotlib.pyplot as plt
+
 import pygeogram
 
-v = pygeogram.load("data/bunny.ply")
-vv = pygeogram.smooth_point_set(
-    v,     # mesh_data
+mesh = pygeogram.load("data/bunny.ply")
+mesh = pygeogram.smooth_point_set(
+    mesh,  # mesh_data
     2,     # nb_iterations
     30     # nb_neighbors
 )
-vvv = pygeogram.reconstruct_Co3Ne(
-    vv,
+mesh = pygeogram.reconstruct_Co3Ne(
+    mesh,  # mesh_data
     5.0,   # radius
     0,     # nb_iterations
     30,    # nb_neighbors
     1      # mesh_repair_colocate # MESH_REPAIR_DEFAULT
 )
-vvvv = pygeogram.remesh_smooth(
-    vvv,   # mesh_data
+mesh = pygeogram.remesh_smooth(
+    mesh,  # mesh_data
     1000,  # nb_points
     1.0,   # tri_shape_adapt
     0.0,   # tri_size_adapt
@@ -25,17 +27,16 @@ vvvv = pygeogram.remesh_smooth(
     10000  # LFS_samples
 )
 
-import matplotlib.pyplot as plt
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # Extracting the x, y, z coordinates
-x = vvvv["vertices"][:, 0]
-y = vvvv["vertices"][:, 1]
-z = vvvv["vertices"][:, 2]
+vertices = mesh["vertices"]
+faces = mesh["facets"]
 
-faces = vvvv["facets"]
+x = vertices[:, 0]
+y = vertices[:, 1]
+z = vertices[:, 2]
 
 # Plotting the surface
 ax.plot_trisurf(x, y, z, triangles=faces, cmap='viridis', edgecolor='none')
