@@ -9,5 +9,4 @@ pygeogram/tests/test_basic.py
 pygeogram/build
 pygeogram/pygeogram.egg-info
 
-data
 .vscode/settings.json
