@@ -5,6 +5,7 @@ For OSX this is:
 ```
 git clone --recurse-submodules https://github.com/BrunoLevy/geogram.git
 cd geogram
+git checkout tags/v1.8.6
 ./configure.sh
 cd Build/Darwin-clang-dynamic-Release
 make -j 8
